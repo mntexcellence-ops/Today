@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Portfolio &amp; Smart Daily Dashboard</title>
+<meta name="description" content="A premium personal portfolio and daily dashboard: triple calendar (Gregorian, Bengali, Hijri), holidays, world clock, quick links, prophets' stories, tasks and notes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Serif+Bengali:wght@400;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/calendar.css">
+<link rel="stylesheet" href="css/responsive.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <div class="avatar" id="profileAvatar">Y</div>
+      <div><b id="profileName">Your Name</b><span id="profileRole">Portfolio &amp; Dashboard Owner</span></div>
+    </div>
+    <nav class="nav" aria-label="Sections">
+      <button data-nav="dashboard" class="active"><i data-lucide="layout-dashboard"></i><span data-i18n="navDashboard">Dashboard</span></button>
+      <button data-nav="calendar"><i data-lucide="calendar-days"></i><span data-i18n="navCalendar">Triple Calendar</span></button>
+      <button data-nav="holidays"><i data-lucide="party-popper"></i><span data-i18n="navHolidays">Holidays</span></button>
+      <button data-nav="clock"><i data-lucide="clock"></i><span data-i18n="navClock">World Clock</span></button>
+      <button data-nav="links"><i data-lucide="link"></i><span data-i18n="navLinks">Quick Links</span></button>
+      <button data-nav="stories"><i data-lucide="book-open"></i><span data-i18n="navStories">Prophets' Stories</span></button>
+      <button data-nav="tasks"><i data-lucide="check-square"></i><span data-i18n="navTasks">Tasks &amp; Notes</span></button>
+      <button data-nav="settings"><i data-lucide="settings"></i><span data-i18n="navSettings">Settings</span></button>
+      <button data-nav="about"><i data-lucide="user"></i><span data-i18n="navAbout">About / Portfolio</span></button>
+    </nav>
+    <div class="side-foot">
+      <p data-i18n="sidebarFoot">Triple calendar: Gregorian · Bengali · Hijri (calculated). Hijri dates may differ by a day from local moon sighting — adjust in Settings.</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <button class="burger" id="burger" aria-label="Open menu" data-i18n="menu">☰ Menu</button>
+      <div>
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="sub"><span id="headDate"></span></div>
+      </div>
+      <div class="top-actions">
+        <span class="chip" title="Live clock">🕐 <span id="headClock">--:--:--</span></span>
+        <button class="btn ghost" id="langToggle">🌐 English</button>
+        <button class="btn ghost" id="themeToggle" aria-label="Toggle dark/light theme">🌙 Dark</button>
+      </div>
+    </div>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="view" data-view="dashboard" aria-label="Dashboard">
+      <div class="sec-head"><h2 data-i18n="secDashboard">Dashboard</h2><p data-i18n="descDashboard">Your day at a glance. Reorder or hide widgets from Settings.</p></div>
+      <div class="grid" id="dashWidgets"></div>
+    </section>
+
+    <!-- ============ TRIPLE CALENDAR ============ -->
+    <section class="view" data-view="calendar" aria-label="Triple Calendar">
+      <div class="sec-head"><h2 data-i18n="secCalendar">Triple Calendar</h2><p data-i18n="descCalendar">Gregorian, Bengali and Hijri dates together. Fridays are marked gold; weekend in Bangladesh is Friday–Saturday.</p></div>
+      <div class="card">
+        <div class="toolbar">
+          <select class="select" id="calSystem" aria-label="Calendar system" style="max-width:180px">
+            <option value="gregorian" data-i18n="sysGregorian">Gregorian</option>
+            <option value="bengali" data-i18n="sysBengali">Bengali</option>
+            <option value="hijri" data-i18n="sysHijri">Hijri</option>
+          </select>
+          <select class="select" id="calMonth" aria-label="Month" style="max-width:170px"></select>
+          <select class="select" id="calYear" aria-label="Year" style="max-width:120px"></select>
+          <button class="btn ghost" id="calPrev" data-i18n="calPrev">← Prev</button>
+          <button class="btn ghost" id="calNext" data-i18n="calNext">Next →</button>
+          <button class="btn gold" id="calToday" data-i18n="calToday">Today</button>
+        </div>
+        <div class="toolbar">
+          <button class="btn ghost small" data-calview="month" data-i18n="monthView">Month view</button>
+          <button class="btn ghost small" data-calview="week" data-i18n="weekView">Week view</button>
+          <button class="btn ghost small" data-calview="day" data-i18n="dayView">Day view</button>
+          <button class="btn ghost small" id="calPrevDay" data-i18n="prevDay">← Prev day</button>
+          <button class="btn ghost small" id="calNextDay" data-i18n="nextDay">Next day →</button>
+        </div>
+        <h3 id="calTitle" style="font-size:19px"></h3>
+        <p class="s" id="calSubtitle"></p>
+        <div id="calGrid"></div>
+        <div id="calDetail" class="cal-day-detail"></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3><span class="dot"></span><span data-i18n="holidaysInMonth">Holidays in this month</span></h3>
+        <div id="calMonthHolidays"></div>
+      </div>
+    </section>
+
+    <!-- ============ HOLIDAYS ============ -->
+    <section class="view" data-view="holidays" aria-label="Holidays">
+      <div class="sec-head"><h2 data-i18n="secHolidays">Holidays</h2><p data-i18n="descHolidays">Bangladesh public holidays, Islamic observances (tentative where calculated), Bengali festivals, international days and your own events.</p></div>
+      <div class="card" style="margin-bottom:16px">
+        <h3><span class="dot"></span><span data-i18n="upcomingHolidays">Upcoming holidays</span></h3>
+        <div id="holUpcoming"></div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <input class="input" id="holSearch" placeholder="Search holidays…" data-i18n-ph="searchPh" aria-label="Search holidays">
+          <select class="select" id="holCat" aria-label="Filter by category" style="max-width:190px">
+            <option value="All" data-i18n="allCategories">All categories</option>
+            <option value="bangladesh" data-i18n="cat_bangladesh">Bangladesh</option>
+            <option value="islamic" data-i18n="cat_islamic">Islamic</option>
+            <option value="bengali" data-i18n="sysBengali">Bengali</option>
+            <option value="international" data-i18n="cat_international">International</option>
+            <option value="personal" data-i18n="cat_personal">Personal</option>
+          </select>
+          <button class="btn ghost" id="holExport" data-i18n="exportJson">Export JSON</button>
+          <label class="btn ghost" style="cursor:pointer"><span data-i18n="importJson">Import JSON</span><input type="file" id="holImport" accept=".json,application/json" hidden></label>
+        </div>
+        <div id="holList"></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3><span class="dot"></span><span data-i18n="addCustomHoliday">Add a custom holiday / personal event</span></h3>
+        <form id="holAddForm">
+          <div class="form-row">
+            <div><label class="f" data-i18n="holNameLabel">Name *</label><input class="input" id="holName" required></div>
+            <div><label class="f" data-i18n="holNameBnLabel">Name (Bengali, optional)</label><input class="input bn" id="holNameBn"></div>
+            <div><label class="f" data-i18n="holDateLabel">Date *</label><input class="input" type="date" id="holDate" required></div>
+          </div>
+          <div style="margin:12px 0">
+            <label class="switch"><input type="checkbox" id="holRecurring"> <span data-i18n="holRecurring">Recurring every year on this month/day</span></label>
+          </div>
+          <div><label class="f" data-i18n="holDescLabel">Description</label><textarea class="textarea" id="holDesc"></textarea></div>
+          <div class="toolbar" style="margin-top:12px"><button class="btn" type="submit" data-i18n="addHolidayBtn">Add holiday</button></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ WORLD CLOCK ============ -->
+    <section class="view" data-view="clock" aria-label="World Clock">
+      <div class="sec-head"><h2 data-i18n="secClock">World Clock</h2><p data-i18n="descClock">One timer drives every clock on this page. Times use IANA timezones.</p></div>
+      <div class="grid">
+        <div class="card s6">
+          <h3><span class="dot"></span><span data-i18n="mainClock">Main clock</span></h3>
+          <div class="clock-big" id="mainClock">--:--:--</div>
+          <div class="clock-sub" id="mainClockDate"></div>
+          <div style="text-align:center;margin-top:8px">
+            <svg class="analog" viewBox="0 0 150 150" role="img" aria-label="Analog clock">
+              <circle class="face" cx="75" cy="75" r="70"></circle>
+              <g class="tick">
+                <line x1="75" y1="5" x2="75" y2="15"></line><line x1="145" y1="75" x2="135" y2="75"></line>
+                <line x1="75" y1="145" x2="75" y2="135"></line><line x1="5" y1="75" x2="15" y2="75"></line>
+                <line x1="110" y1="14.8" x2="105" y2="23.4"></line><line x1="135.2" y1="110" x2="126.6" y2="105"></line>
+                <line x1="110" y1="135.2" x2="105" y2="126.6"></line><line x1="14.8" y1="110" x2="23.4" y2="105"></line>
+                <line x1="14.8" y1="40" x2="23.4" y2="45"></line><line x1="40" y1="14.8" x2="45" y2="23.4"></line>
+                <line x1="135.2" y1="40" x2="126.6" y2="45"></line><line x1="40" y1="135.2" x2="45" y2="126.6"></line>
+              </g>
+              <text x="75" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="var(--muted)">12</text>
+              <text x="128" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="var(--muted)">3</text>
+              <text x="75" y="132" text-anchor="middle" font-size="13" font-weight="700" fill="var(--muted)">6</text>
+              <text x="22" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="var(--muted)">9</text>
+              <line id="handH" class="hand h-hand" x1="75" y1="75" x2="75" y2="35"></line>
+              <line id="handM" class="hand m-hand" x1="75" y1="75" x2="75" y2="18"></line>
+              <line id="handS" class="hand s-hand" x1="75" y1="85" x2="75" y2="14"></line>
+              <circle class="pin" cx="75" cy="75" r="4"></circle>
+            </svg>
+          </div>
+          <div class="form-row two" style="margin-top:12px">
+            <div><label class="f" data-i18n="clockFormatLabel">Clock format</label>
+              <select class="select" id="clockFormat"><option value="12" data-i18n="hour12">12-hour</option><option value="24" data-i18n="hour24">24-hour</option></select></div>
+            <div><label class="f" data-i18n="timezoneLabel">Timezone</label>
+              <select class="select" id="clockTz">
+                <option value="Asia/Dhaka">Asia/Dhaka</option><option value="Asia/Kolkata">Asia/Kolkata</option>
+                <option value="Asia/Tokyo">Asia/Tokyo</option><option value="Asia/Dubai">Asia/Dubai</option>
+                <option value="Asia/Riyadh">Asia/Riyadh</option><option value="Europe/London">Europe/London</option>
+                <option value="Europe/Paris">Europe/Paris</option><option value="America/New_York">America/New_York</option>
+                <option value="America/Los_Angeles">America/Los_Angeles</option><option value="Australia/Sydney">Australia/Sydney</option>
+                <option value="UTC">UTC</option>
+              </select></div>
+          </div>
+        </div>
+        <div class="card s6">
+          <h3><span class="dot"></span><span data-i18n="worldClocks">World clocks</span></h3>
+          <div id="worldList"></div>
+          <hr class="sep">
+          <div class="form-row two">
+            <div><label class="f" data-i18n="cityLabel">City name</label><input class="input" id="cityLabel" placeholder="e.g. Singapore" data-i18n-ph="cityPh"></div>
+            <div><label class="f" data-i18n="tzLabel">IANA timezone</label><input class="input" id="cityTz" placeholder="e.g. Asia/Singapore" data-i18n-ph="tzPh"></div>
+          </div>
+          <div class="toolbar" style="margin-top:12px"><button class="btn" id="addCity" data-i18n="addCityBtn">Add city</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ QUICK LINKS ============ -->
+    <section class="view" data-view="links" aria-label="Quick Links">
+      <div class="sec-head"><h2 data-i18n="secLinks">Quick Links</h2><p data-i18n="descLinks">Your personal bookmarks. Drag cards to reorder. Only http(s) links are opened.</p></div>
+      <div class="card">
+        <div class="toolbar">
+          <input class="input" id="linkSearch" placeholder="Search links…" data-i18n-ph="searchPh" aria-label="Search links">
+          <select class="select" id="linkCat" aria-label="Filter by category" style="max-width:190px"></select>
+          <select class="select" id="linkView" aria-label="View" style="max-width:130px">
+            <option value="grid" data-i18n="gridView">Grid view</option>
+            <option value="list" data-i18n="listView">List view</option>
+          </select>
+          <button class="btn" id="addLinkBtn">＋ <span data-i18n="addLink">Add Link</span></button>
+          <button class="btn ghost" id="linkExport" data-i18n="exportJson">Export JSON</button>
+          <label class="btn ghost" style="cursor:pointer"><span data-i18n="importJson">Import JSON</span><input type="file" id="linkImport" accept=".json,application/json" hidden></label>
+        </div>
+        <div id="linksGrid"></div>
+      </div>
+    </section>
+
+    <!-- ============ PROPHETS' STORIES ============ -->
+    <section class="view" data-view="stories" aria-label="Prophets' Stories">
+      <div class="sec-head"><h2 data-i18n="secStories">Prophets' Stories</h2><p data-i18n="descStories">One story a day as a reading schedule — not a claim that the event happened on today's date. Quranic accounts are distinguished from classical scholarship.</p></div>
+      <div class="card" style="margin-bottom:16px">
+        <h3><span class="dot"></span><span data-i18n="featuredStory">Featured story</span></h3>
+        <div id="storyCard"></div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <input class="input" id="storySearch" placeholder="Search stories…" data-i18n-ph="searchPh" aria-label="Search stories">
+          <select class="select" id="storyProphet" aria-label="Filter by prophet" style="max-width:200px"></select>
+        </div>
+        <div id="storyList"></div>
+      </div>
+    </section>
+
+    <!-- ============ TASKS & NOTES ============ -->
+    <section class="view" data-view="tasks" aria-label="Tasks and Notes">
+      <div class="sec-head"><h2 data-i18n="secTasks">Tasks &amp; Notes</h2><p data-i18n="descTasks">Lightweight productivity, saved in your browser.</p></div>
+      <div class="grid">
+        <div class="card s6">
+          <h3><span class="dot"></span><span data-i18n="tasksTitle">Tasks</span></h3>
+          <div id="taskProgress"></div>
+          <form id="taskForm">
+            <div class="form-row" style="margin:12px 0">
+              <div style="grid-column:span 2"><label class="f" data-i18n="taskLabel">Task *</label><input class="input" id="taskTitle" required></div>
+              <div><label class="f" data-i18n="dueLabel">Due date</label><input class="input" type="date" id="taskDue"></div>
+            </div>
+            <div class="form-row two" style="margin-bottom:12px">
+              <div><label class="f" data-i18n="priorityLabel">Priority</label>
+                <select class="select" id="taskPriority"><option value="Low" data-i18n="priLow">Low</option><option value="Medium" data-i18n="priMedium" selected>Medium</option><option value="High" data-i18n="priHigh">High</option></select></div>
+              <div style="display:flex;align-items:end"><label class="switch"><input type="checkbox" id="taskImportant"> <span data-i18n="importantLabel">Important</span></label></div>
+            </div>
+            <button class="btn" type="submit">＋ <span data-i18n="addTask">Add Task</span></button>
+          </form>
+          <hr class="sep">
+          <div class="toolbar">
+            <select class="select" id="taskFilter" aria-label="Filter tasks" style="max-width:180px">
+              <option value="all" data-i18n="allFilter">All</option><option value="pending" data-i18n="pendingFilter">Pending</option>
+              <option value="completed" data-i18n="completedFilter">Completed</option><option value="overdue" data-i18n="overdueFilter">Overdue</option>
+            </select>
+            <input class="input" id="taskSearch" placeholder="Search tasks…" data-i18n-ph="searchPh" aria-label="Search tasks">
+          </div>
+          <div id="taskList"></div>
+        </div>
+        <div class="card s6">
+          <h3><span class="dot"></span><span data-i18n="dailyNotes">Daily notes</span></h3>
+          <form id="noteForm">
+            <div style="margin-bottom:10px"><label class="f" data-i18n="noteTitleLabel">Title</label><input class="input" id="noteTitle"></div>
+            <div style="margin-bottom:10px"><label class="f" data-i18n="noteLabel">Note *</label><textarea class="textarea" id="noteBody" required></textarea></div>
+            <button class="btn" type="submit" data-i18n="saveNoteBtn">Save note</button>
+          </form>
+          <hr class="sep">
+          <input class="input" id="noteSearch" placeholder="Search notes…" data-i18n-ph="searchPh" aria-label="Search notes" style="margin-bottom:12px">
+          <div id="noteList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section class="view" data-view="settings" aria-label="Settings">
+      <div class="sec-head"><h2 data-i18n="secSettings">Settings</h2><p data-i18n="descSettings">Everything is saved in your browser (localStorage). No account, no server, no tracking.</p></div>
+      <div class="grid">
+        <div class="card s6">
+          <h3><span class="dot"></span><span data-i18n="appearanceLang">Appearance &amp; language</span></h3>
+          <div class="form-row two">
+            <div><label class="f" data-i18n="themeLabel">Theme</label>
+              <select class="select" id="setTheme"><option value="light" data-i18n="lightOpt">Light</option><option value="dark" data-i18n="darkOpt">Dark</option></select></div>
+            <div><label class="f" data-i18n="langLabel">Interface language</label>
+              <select class="select" id="setLanguage"><option value="en">English</option><option value="bn">বাংলা</option></select></div>
+            <div><label class="f" data-i18n="numeralsLabel">Numeral system</label>
+              <select class="select" id="setNumerals"><option value="latin" data-i18n="numeralsLatin">Latin (0–9)</option><option value="bengali" data-i18n="numeralsBengali">Bengali (০–৯)</option><option value="arabic" data-i18n="numeralsArabic">Arabic-Indic (٠–٩)</option></select></div>
+            <div><label class="f" data-i18n="dateFormatLabel">Date format (short dates)</label>
+              <select class="select" id="setDateFormat">
+                <option value="DD MMM YYYY">14 Apr 2026</option><option value="DD/MM/YYYY">14/04/2026</option>
+                <option value="MM/DD/YYYY">04/14/2026</option><option value="YYYY-MM-DD">2026-04-14</option>
+              </select></div>
+          </div>
+        </div>
+        <div class="card s6">
+          <h3><span class="dot"></span><span data-i18n="calendarClock">Calendar &amp; clock</span></h3>
+          <div class="form-row two">
+            <div><label class="f" data-i18n="defaultCalLabel">Default calendar system</label>
+              <select class="select" id="setDefaultCalendar"><option value="gregorian" data-i18n="sysGregorian">Gregorian</option><option value="bengali" data-i18n="sysBengali">Bengali</option><option value="hijri" data-i18n="sysHijri">Hijri</option></select></div>
+            <div><label class="f" data-i18n="clockFormatLabel">Clock format</label>
+              <select class="select" id="setClockFormat"><option value="12" data-i18n="hour12">12-hour</option><option value="24" data-i18n="hour24">24-hour</option></select></div>
+            <div><label class="f" data-i18n="mainTzLabel">Main timezone</label>
+              <select class="select" id="setTimezone">
+                <option value="Asia/Dhaka">Asia/Dhaka</option><option value="Asia/Kolkata">Asia/Kolkata</option>
+                <option value="Asia/Tokyo">Asia/Tokyo</option><option value="Asia/Dubai">Asia/Dubai</option>
+                <option value="Asia/Riyadh">Asia/Riyadh</option><option value="Europe/London">Europe/London</option>
+                <option value="America/New_York">America/New_York</option><option value="UTC">UTC</option>
+              </select></div>
+            <div><label class="f" data-i18n="hijriAdjustLabel">Hijri date adjustment (days, −3…+3)</label>
+              <input class="input" type="number" id="setHijriAdjust" min="-3" max="3" step="1" value="0">
+              <p style="font-size:12px;color:var(--muted)" data-i18n="hijriAdjustNote">Use this when the calculated Hijri date differs from your local moon-sighting announcement.</p></div>
+          </div>
+        </div>
+        <div class="card s6">
+          <h3><span class="dot"></span><span data-i18n="profileHead">Profile (shown in the sidebar &amp; About)</span></h3>
+          <div class="form-row two">
+            <div><label class="f" data-i18n="nameLabel">Name</label><input class="input" id="profName"></div>
+            <div><label class="f" data-i18n="roleLabel">Role / title</label><input class="input" id="profRole"></div>
+            <div><label class="f" data-i18n="emailLabel">Email</label><input class="input" id="profEmail" type="email"></div>
+            <div><label class="f" data-i18n="locationLabel">Location</label><input class="input" id="profLocation"></div>
+          </div>
+          <div style="margin-top:10px"><label class="f" data-i18n="bioLabel">Bio</label><textarea class="textarea" id="profBio"></textarea></div>
+        </div>
+        <div class="card s6">
+          <h3><span class="dot"></span><span data-i18n="widgetsHead">Dashboard widgets</span></h3>
+          <p class="s" data-i18n="showHideWidgets">Show / hide widgets:</p>
+          <div id="widgetVisibility" style="display:flex;flex-wrap:wrap;gap:10px"></div>
+          <hr class="sep">
+          <p class="s" data-i18n="reorderWidgets">Reorder widgets (top = first on the dashboard):</p>
+          <div id="widgetSettings"></div>
+        </div>
+        <div class="card s6">
+          <h3><span class="dot"></span><span data-i18n="holCatsHead">Holiday categories shown</span></h3>
+          <div id="holCatSettings" style="display:flex;flex-wrap:wrap;gap:10px"></div>
+        </div>
+        <div class="card s6">
+          <h3><span class="dot"></span><span data-i18n="dataHead">Data</span></h3>
+          <p class="s" data-i18n="exportDataNote">Export everything as one backup JSON, or restore from a backup. Reset clears all local data after confirmation.</p>
+          <div class="toolbar">
+            <button class="btn" id="saveSettings" data-i18n="saveSettingsBtn">Save settings</button>
+            <button class="btn ghost" id="exportAll" data-i18n="exportAllBtn">Export all data</button>
+            <label class="btn ghost" style="cursor:pointer"><span data-i18n="importBackupBtn">Import backup</span><input type="file" id="importAll" accept=".json,application/json" hidden></label>
+            <button class="btn danger" id="resetAll" data-i18n="resetAllBtn">Reset all local data</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT / PORTFOLIO ============ -->
+    <section class="view" data-view="about" aria-label="About and Portfolio">
+      <div class="sec-head"><h2 data-i18n="secAbout">About / Portfolio</h2><p data-i18n="descAbout">Your personal introduction. Edit it from Settings → Profile.</p></div>
+      <div class="card"><div id="aboutBody"></div></div>
+      <div class="sec-head" style="margin-top:20px"><h2 data-i18n="secStats">At a glance</h2></div>
+      <div class="links-grid">
+        <div class="card kpi"><span class="v" data-i18n="statUnitsVal">6</span><span class="l" data-i18n="statUnitsLab">Garment units</span></div>
+        <div class="card kpi"><span class="v" data-i18n="statProjVal">446</span><span class="l" data-i18n="statProjLab">Development projects</span></div>
+        <div class="card kpi"><span class="v" data-i18n="statMachVal">9,726.5</span><span class="l" data-i18n="statMachLab">Machines tracked</span></div>
+        <div class="card kpi"><span class="v" data-i18n="statDashVal">3</span><span class="l" data-i18n="statDashLab">Live dashboards</span></div>
+      </div>
+      <div class="sec-head" style="margin-top:20px"><h2 data-i18n="secProjects">Live projects</h2><p data-i18n="descProjects">Real work, live on the web — not screenshots.</p></div>
+      <div class="grid">
+        <div class="card s6"><h3><span class="dot"></span>Daily Maintenance &amp; Operation Consumption &amp; Cost Analysis</h3><p data-i18n="projUtilDesc">Daily utility cost and consumption for 6 garment units, with unit/category filters and in-page data entry.</p><p><a href="https://mntexcellence-ops.github.io/Daily-Utility-Tracker/Index.html" target="_blank" rel="noopener"><span data-i18n="visitLive">Visit live &rarr;</span></a></p></div>
+        <div class="card s6"><h3><span class="dot"></span>Development &amp; Compliance Works</h3><p data-i18n="projDevDesc">446 development and compliance projects with status-wise tracking, budgets and disbursements.</p><p><a href="https://mntexcellence-ops.github.io/DEVELOPMENT-COMPLIANCE-WORKS/" target="_blank" rel="noopener"><span data-i18n="visitLive">Visit live &rarr;</span></a></p></div>
+        <div class="card s6"><h3><span class="dot"></span>Machine Inventory Dashboard</h3><p data-i18n="projMachDesc">157 machine types across 6 units — running, rented and idle counts, plus a history calendar from nightly snapshots.</p><p class="s" data-i18n="machLinkNote">Live link coming soon — GitHub upload pending.</p></div>
+        <div class="card s6"><h3><span class="dot"></span>KinCircle — Private Social Network</h3><p data-i18n="projKinDesc">Private-by-default social network: friends-only posts, messaging, stories and calls.</p><p><a href="https://kincircle-sable.vercel.app" target="_blank" rel="noopener"><span data-i18n="visitLive">Visit live &rarr;</span></a></p></div>
+      </div>
+      <div class="sec-head" style="margin-top:20px"><h2 data-i18n="secCases">Case studies</h2><p data-i18n="descCases">Problem &rarr; what I did &rarr; result.</p></div>
+      <div class="grid">
+        <div class="card s6"><h3><span class="dot"></span><span data-i18n="case1Title">The 900% rate error</span></h3><p><b><span data-i18n="probLab">Problem:</span></b> <span data-i18n="case1Prob">In the utility Sheet, 'Jhute for Boiler' was entered at 135 BDT instead of 13.5 — a 900% spread against other units.</span></p><p><b><span data-i18n="didLab">What I did:</span></b> <span data-i18n="case1Did">The dashboard's cross-unit rate comparison flagged it as a possible data error instead of hiding it inside totals.</span></p><p><b><span data-i18n="resLab">Result:</span></b> <span data-i18n="case1Res">The Sheet was corrected (all 19 AFL rows now 13.5) and the total cost came down by about ৳6.6 lakh, to ৳39,092,250.</span></p></div>
+        <div class="card s6"><h3><span class="dot"></span><span data-i18n="case2Title">The 0.5 machine</span></h3><p><b><span data-i18n="probLab">Problem:</span></b> <span data-i18n="case2Prob">The machine total was 9,726.5, not a round number — 3 machine types are shared across lines as 0.5 + 0.5.</span></p><p><b><span data-i18n="didLab">What I did:</span></b> <span data-i18n="case2Did">Instead of rounding to 9,726, the dashboard shows one decimal when a count is fractional, so it matches the Sheet exactly.</span></p><p><b><span data-i18n="resLab">Result:</span></b> <span data-i18n="case2Res">Management now sees the exact figure the Sheet holds — no silent rounding gap.</span></p></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3><span class="dot"></span><span data-i18n="aboutDashHead">About this dashboard</span></h3>
+        <p data-i18n="aboutPara">Built with HTML5, CSS3 and vanilla JavaScript (ES6+) — no frontend framework. Data lives in JSON files (data/) and your own entries in localStorage. Calendars: Gregorian dates are exact; the Bengali calendar follows the Bangladesh revised calendar rules (year starts 14 April); Hijri dates are calculated with the Umm al-Qura tabular calendar via the browser's Intl API and may differ by a day from local moon-sighting announcements — use the Hijri adjustment in Settings. Prophet stories paraphrase the cited Quranic passages; hadith references are omitted unless verified; the daily rotation is a reading schedule, not a historical anniversary claim.</p>
+      </div>
+    </section>
+
+    <p class="foot" data-i18n="footerText">Personal Portfolio &amp; Smart Daily Dashboard · Built with vanilla HTML, CSS &amp; JavaScript · Your data stays in your browser.</p>
+  </main>
+</div>
+
+<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button class="icon-btn close-x" id="modalClose" aria-label="Close">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+<script src="js/storage.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/date-converter.js"></script>
+<script src="js/holidays.js"></script>
+<script src="js/clock.js"></script>
+<script src="js/quick-links.js"></script>
+<script src="js/prophets-stories.js"></script>
+<script src="js/tasks.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/fallback-data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

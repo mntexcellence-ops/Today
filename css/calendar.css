@@ -1,0 +1,27 @@
+/* ============================================================
+   calendar.css — triple calendar grids, day cells, detail panel.
+   ============================================================ */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-dow{font-size:11.5px;font-weight:700;color:var(--muted);text-align:center;padding:4px 0;text-transform:uppercase;letter-spacing:.5px}
+.cal-cell{min-height:86px;background:var(--card-solid);border:1px solid var(--line);border-radius:12px;
+  padding:7px 8px;text-align:left;position:relative;transition:box-shadow .15s,border-color .15s}
+.cal-cell:hover{box-shadow:var(--shadow-sm);border-color:var(--gold)}
+.cal-cell.outside{opacity:.38}
+.cal-cell.today{border:2px solid var(--gold);background:var(--gold-soft)}
+.cal-cell.friday{border-left:4px solid var(--gold)}
+.cal-cell.selected{outline:2px solid var(--teal);outline-offset:1px}
+.cal-cell .g{font-size:15px;font-weight:800;line-height:1.1}
+.cal-cell .b{font-size:11px;color:var(--teal);line-height:1.3}
+.cal-cell .h{font-size:11px;color:var(--muted);line-height:1.3}
+.cal-cell .dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
+.cal-cell .dot{width:7px;height:7px;border-radius:50%}
+.cal-cell .dot.bangladesh{background:#2563eb}.cal-cell .dot.islamic{background:#15803d}
+.cal-cell .dot.bengali{background:#b45309}.cal-cell .dot.international{background:#6d28d9}
+.cal-cell .dot.personal{background:#ec268f}
+.cal-week-row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-day-detail{background:var(--teal-soft);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:14px}
+.cal-day-detail h4{margin:0 0 6px}
+.mini-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-size:12px}
+.mini-cal div{text-align:center;padding:5px 0;border-radius:7px}
+.mini-cal .today{background:var(--gold);color:#111827;font-weight:800}
+.mini-cal .has-dot{box-shadow:inset 0 -2px 0 var(--teal)}
